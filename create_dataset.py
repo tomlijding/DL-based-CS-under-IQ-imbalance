@@ -30,6 +30,8 @@ identity = F@Fstar
 h = F@x
 
 # This was done once, now we need to generate multiple thousands of h to train the dataset. 
-# 
+# Some questions would be:
+# How large do we make the dataset
+# Does the generated data need to be sparse at the same indices? (I think so, otherwise the trained decoder would not function properly)
 
 # Now train the autoencoder
