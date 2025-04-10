@@ -2,7 +2,9 @@
 
 ## Introduction
 In this repository, we approach the problem of IQ imbalance in channel estimation of mmWave phased arrays from a compressed sensing (CS)/neural network point of view. \
+
 We refer the interested reader to the pdf file Data_Compression__Deep_Learning_Based_CS_under_IQ_Imbalance.pdf for a full report on the problem and the approach.\
+
 We are able to find a remarkably small neural network solution, able to completely negate the effects of IQ imbalance, as well as faithfully reconstruct the signal for a range of SNR. Plots of NMSE for various models are shown below
 
 ![allmodels](https://github.com/user-attachments/assets/f38a920e-4939-41fa-851e-0a847b25c71f)
