@@ -13,6 +13,11 @@ Additionally, we are able to restrict the values of the CS matrix even further, 
 
 ![discrete_model_performance_page-0001](https://github.com/user-attachments/assets/09642c33-319e-4c33-bbe3-0b4de7f5ab7e)
 
+Below we show how a signal is reconstructed using the algorithm
+
+![reconstruction_noiseless](https://github.com/user-attachments/assets/3bd6b4a3-eb62-430d-b83b-3d70bf06bc5d)
+
+
 ## Methodology
 We use autoencoder based compressed sensing to reconstruct the chanel from limited measurements, allowing us to find a good approximation of the original channel of size 100 from just 40 measurements!
 
