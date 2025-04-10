@@ -32,5 +32,5 @@ We then add noise, reduce the amount of measurements and add IQ imbalance. The I
 ![IQI-Model](https://github.com/user-attachments/assets/f0144932-f688-478a-ab06-8b3ded75671b)
 
 
-[^1] A. -A. A. Boulogeorgos, V. M. Kapinas, R. Schober and G. K. Karagiannidis, "I/Q-Imbalance Self-Interference Coordination," in IEEE Transactions on Wireless Communications, vol. 15, no. 6, pp. 4157-4170, June 2016, doi: 10.1109/TWC.2016.2535441.
+[^1]: A. -A. A. Boulogeorgos, V. M. Kapinas, R. Schober and G. K. Karagiannidis, "I/Q-Imbalance Self-Interference Coordination," in IEEE Transactions on Wireless Communications, vol. 15, no. 6, pp. 4157-4170, June 2016, doi: 10.1109/TWC.2016.2535441.
 
