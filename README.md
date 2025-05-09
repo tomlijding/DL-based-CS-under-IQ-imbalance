@@ -9,7 +9,7 @@ We are able to find a remarkably small neural network solution, able to complete
 
 ![allmodels](https://github.com/user-attachments/assets/f38a920e-4939-41fa-851e-0a847b25c71f)
 
-Additionally, we are able to restrict the values of the CS matrix even further, to a discrete set defined by $q \in \{ \pm \pi, \pm \frac{1}{2}\pi, 0\}$ corresponding to a 5-bit limited resolution phased-array antenna, allowing the deployment on low-cost and complexity phased-array antenna setup! The results are shown below.
+Additionally, we are able to restrict the values of the CS matrix even further, to a discrete set defined by $q \in \{ \pm \pi, \pm \frac{1}{2}\pi, 0\}$ corresponding to a 5-bit limited resolution phased-array antenna, allowing the deployment on low-cost and complexity phased-array antenna setup. The results are shown below.
 
 ![discrete_model_performance_page-0001](https://github.com/user-attachments/assets/09642c33-319e-4c33-bbe3-0b4de7f5ab7e)
 
@@ -19,7 +19,7 @@ Below we show how a signal is reconstructed using the algorithm
 
 
 ## Methodology
-We use autoencoder based compressed sensing to reconstruct the chanel from limited measurements, allowing us to find a good approximation of the original channel of size 100 from just 40 measurements!
+We use autoencoder based compressed sensing to reconstruct the chanel from limited measurements, allowing us to find a good approximation of the original channel of size 100 from just 40 measurements.
 
 A visual representation of the measurement model is given below
 
