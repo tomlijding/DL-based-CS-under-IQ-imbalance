@@ -5,7 +5,7 @@ import scipy as sp
 import torch
 from torch import nn
 
-from data import Generate_Dataloader
+from data import generate_dataloader, DataConfig
 from models import (LearnedAutoencoderWithIQImbalance,
                     LearnedAutoencoderWithVarIQImbalance,
                     LearnedAutoencoder,
@@ -14,19 +14,20 @@ from plotting import visualizeReconstruction, plotting, plot_losses
 from pretrained_models import load_pretrained_models, evaluate_pretrained_models
 from utils import  discreteLossPoly, mapToDiscreteValues, validateModels
 
-# Build a standard dataset
-max_amplitude = 100
-min_sparsity = 7
-max_sparsity = 9
-vector_size = 100
-data_set_size = 10000
-dataloader, signal_variance = Generate_Dataloader(max_amplitude,min_sparsity,max_sparsity,vector_size,data_set_size)
+base_config = DataConfig(
+    max_amplitude = 100,
+    min_sparsity = 7,
+    max_sparsity = 9,
+    vector_size = 100,
+    dataset_size = 10000)
+dataloader, signal_variance = generate_dataloader(base_config)
 
 noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models = load_pretrained_models()
 evaluate_pretrained_models(noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models)
 
+
 vector_size = 100
-encoding_dim = 50
+encoding_dim = 50,
 hidden_dims = np.array([60,80])
 discrete_autoencoder_model = LearnedAutoencoder(vector_size,encoding_dim,hidden_dims)
 optimizer = torch.optim.Adam(discrete_autoencoder_model.parameters(), lr=1E-3, betas=(0.9,0.999))
@@ -75,11 +76,11 @@ discrete_model = LearnedAutoencoder(vector_size,encoding_dim,hidden_dims)
 # Load the state dictionary
 discrete_model.load_state_dict(torch.load("Models/discrete_models/discrete_model.pt"))
 
-visualizeReconstruction(discrete_model,max_amplitude,min_sparsity,max_sparsity,vector_size)
+visualizeReconstruction(discrete_model,base_config)
 
 discrete_model_losses = []
 
-dataloader_val, signal_variance = Generate_Dataloader(max_amplitude, min_sparsity, max_sparsity, vector_size, data_set_size)
+dataloader_val, signal_variance = generate_dataloader(base_config)
 
 loss_fn = nn.MSELoss()
 
@@ -179,7 +180,7 @@ max_sparsity = 9
 vector_size = 100
 data_set_size = 10000
 
-dataloader, signal_variance = Generate_Dataloader(max_amplitude, min_sparsity, max_sparsity, vector_size, data_set_size)
+dataloader, signal_variance = generate_dataloader(max_amplitude, base_config)
 
 # discrete_values = np.array([-np.pi, -0.5*np.pi,0,0.5*np.pi,np.pi])
 scale_factor = 0.01
@@ -251,8 +252,7 @@ max_sparsity = 9
 vector_size = 100
 data_set_size = 10000
 
-dataloader_val, signal_variance = Generate_Dataloader(max_amplitude, min_sparsity, max_sparsity, vector_size,
-                                                      data_set_size)
+dataloader_val, signal_variance = generate_dataloader(max_amplitude, base_config)
 
 normalized_losses, unnormalized_losses = validateModels(dataloader_val, iq_imbalanced_models, loss_fn)
 
