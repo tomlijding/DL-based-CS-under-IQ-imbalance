@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from data import Generate_Dataloader
+from data import generate_dataloader, DataConfig
 from models import LearnedAutoencoderWithNoise, LearnedAutoencoderWithIQImbalance
 from plotting import plot_several_models
 from utils import calc_IRR_ratios
@@ -103,7 +103,7 @@ def evaluate_pretrained_models(noisy_pretrained_models, imbalanced_pretrained_mo
     loss_fn = nn.MSELoss()
 
     for i, (min_spars, max_spars) in enumerate(sparsity_ranges):
-        dataloader_val, signal_variance = Generate_Dataloader(max_amplitude, min_spars, max_spars, vector_size, data_set_size)
+        dataloader_val, signal_variance = generate_dataloader(DataConfig)
         # Evaluate noisy models
         noisy_val_losses = []
         noisy_model_losses = []
@@ -165,3 +165,5 @@ def evaluate_pretrained_models(noisy_pretrained_models, imbalanced_pretrained_mo
 
     plot_several_models(all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses)
     plt.show()
+
+    return all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses

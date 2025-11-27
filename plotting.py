@@ -4,7 +4,8 @@ import scipy as sp
 import torch
 from torch import nn
 
-from data import buildDataSet
+from data import build_dataset
+
 def plot_several_models(all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses):
     plt.style.use('ggplot')
     fig1, (ax1, ax2, ax3) = plt.subplots(ncols=3, nrows=1, figsize=(18, 6))
@@ -38,7 +39,7 @@ def plot_several_models(all_imbalanced_losses, all_measurement_losses, SNR, IRR_
     plt.show()
 
 def visualizeReconstruction(model, max_amplitude=100, min_sparsity=3, max_sparsity=5, vector_size=100):
-    h, x = buildDataSet(max_amplitude, min_sparsity, max_sparsity, vector_size, 1)
+    h, x = build_dataset(max_amplitude, min_sparsity, max_sparsity, vector_size, 1)
 
     H = np.concatenate((h.real, h.imag)).T
 
