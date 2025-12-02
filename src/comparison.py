@@ -4,9 +4,12 @@ import scipy as sp
 
 from src.data_generation import build_dataset
 from src.eval import load_pretrained_models, evaluate_pretrained_models
-from src.algorithms import omp, psomp
+from src.algorithms import omp, psomp, find_x_xi
 from src.utils import DataConfig,generate_sensing_matrix, apply_iq_imbalance
 
+# Bugs:
+# - In visualization, we calculate and IRR ratio of infinity for 0% imbalance, which is incorrect. Need to handle 0% case separately.
+# - Plotting bugs. Namely with visualization of the PSOMP and OMP models alongside the learned models.
 
 config = DataConfig(dataset_size = 1,
     vector_size= 100,
@@ -39,16 +42,17 @@ for noise_level in noise_levels:
     y = Phi @ x
     y = y + np.random.normal(0, variance, size=y.shape)
     x_hat_omp = omp(Phi,y,omp_epsilon,omp_max_iterations)
-    x_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size)/np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_MSE = sum((x-x_hat_omp)**2)/len(y)
-    OMP_noisy_losses.append(OMP_noisy_losses)
-    PSOMP_MSE = sum((x-x_hat_psomp)**2)/len(y)
-    PSOMP_noisy_losses.append(PSOMP_noisy_losses)
+    OMP_NMSE = sum((x-x_hat_omp)**2)/sum(x**2)
+    OMP_noisy_losses.append(OMP_NMSE)
+    PSOMP_NMSE = sum((x-x_hat_psomp)**2)/sum(x**2)
+    PSOMP_noisy_losses.append(PSOMP_NMSE)
 
 OMP_imbalanced_losses = []
 PSOMP_imbalanced_losses = []
@@ -61,16 +65,17 @@ for IRR_ratio in IRR_ratios:
     y = Phi @ x
     y = apply_iq_imbalance(y, IRR_ratio)[sensing_matrix_rows:]
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    x_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_MSE = sum((x - x_hat_omp) ** 2)
-    OMP_imbalanced_losses.append(OMP_MSE)
-    PSOMP_MSE = sum((x - x_hat_psomp) ** 2)
-    PSOMP_imbalanced_losses.append(PSOMP_MSE)
+    OMP_NMSE = sum((x - x_hat_omp) ** 2)/sum(x**2)
+    OMP_imbalanced_losses.append(OMP_NMSE)
+    PSOMP_NMSE = sum((x - x_hat_psomp) ** 2)/sum(x**2)
+    PSOMP_imbalanced_losses.append(PSOMP_NMSE)
 
 OMP_sensing_size_losses = []
 PSOMP_sensing_size_losses = []
@@ -82,20 +87,27 @@ for sensing_size in sensing_sizes:
     # First generate the output
     y = Phi @ x
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    x_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_MSE = sum((x - x_hat_omp) ** 2)
-    OMP_imbalanced_losses.append(OMP_MSE)
-    PSOMP_MSE = sum((x - x_hat_psomp) ** 2)
-    PSOMP_imbalanced_losses.append(PSOMP_MSE)
+    OMP_NMSE = sum((x - x_hat_omp) ** 2)/sum(x**2)
+    OMP_sensing_size_losses.append(OMP_NMSE)
+    PSOMP_NMSE = sum((x - x_hat_psomp) ** 2)/sum(x**2)
+    PSOMP_sensing_size_losses.append(PSOMP_NMSE)
 
 print("model training complete")
 plt.style.use('ggplot')
 fig1, (ax1, ax2, ax3) = plt.subplots(ncols=3, nrows=1, figsize=(18, 6))
+
+# Debugging
+
+print(f"OMP ")
+
+# Debugggin
 
 for i in range(4):
     if i == 0:

@@ -96,7 +96,7 @@ def calc_IRR_ratios(imb_percentage_list):
         IRR_ratio = (np.abs(r) ** 2) / (np.abs(1 - r) ** 2)
         IRR_ratios[level] = 10 * np.log10(IRR_ratio)
 
-        return IRR_ratios
+    return IRR_ratios
 
 """
 OMP/PSOMP
