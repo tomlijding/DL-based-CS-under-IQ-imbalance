@@ -1,13 +1,15 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from torch import nn
+import torch.nn as nn
+from src.data_generation import generate_dataloader
+from src.algorithms import LearnedAutoencoderWithNoise, LearnedAutoencoderWithIQImbalance
+from src.visualization import plot_several_models
+from src.utils import DataConfig, calc_IRR_ratios
+import matplotlib.pyplot as plt
 
-from data import generate_dataloader, DataConfig
-from models import LearnedAutoencoderWithNoise, LearnedAutoencoderWithIQImbalance
-from plotting import plot_several_models
-from utils import calc_IRR_ratios
-
+"""
+Model Evaluation Utilities
+"""
 
 def load_pretrained_models():
     # Initialize pretrained models

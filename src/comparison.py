@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 
-from data import build_dataset, DataConfig
-from pretrained_models import load_pretrained_models, evaluate_pretrained_models
-from utils import generate_sensing_matrix, apply_iq_imbalance
-from models import omp, psomp
+from src.data_generation import build_dataset
+from src.eval import load_pretrained_models, evaluate_pretrained_models
+from src.algorithms import omp, psomp
+from src.utils import DataConfig,generate_sensing_matrix, apply_iq_imbalance
 
 
 config = DataConfig(dataset_size = 1,

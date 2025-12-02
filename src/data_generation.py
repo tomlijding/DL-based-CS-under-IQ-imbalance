@@ -2,6 +2,9 @@ import numpy as np
 import scipy as sp
 from src.utils import Config
 import random
+import torch
+from torch.utils.data import TensorDataset, DataLoader
+
 
 def build_dataset(config: Config):
     """
@@ -57,3 +60,31 @@ def generate_sparse_vector(sparsity: int, vector_size: int, max_amplitude: int):
     amps = np.random.uniform(-max_amplitude, max_amplitude, sparsity)  # Use negative and positive values
     x[indices, 0] = amps
     return x
+
+
+def generate_dataloader(config):
+    """
+    Generates a torch.Dataloader object of dense vectors
+    Parameters:
+    config : Config
+        Configuration object containing parameters for dataset generation.
+
+    Returns:
+    dataloader : torch.utils.data.Dataloader
+        dataloader object used to access training and test data
+    variance : np.float
+        variance of labels, used for normalization
+    """
+    dense_data, sparse_data = build_dataset(config)
+
+    X = np.concatenate((dense_data.real,dense_data.imag)).T
+    Y = np.concatenate((dense_data.real,dense_data.imag)).T
+
+    X_tensor = torch.tensor(X,dtype=torch.float)
+    Y_tensor = torch.tensor(Y,dtype=torch.float)
+    dataset = TensorDataset(X_tensor,Y_tensor)
+
+    dataloader = DataLoader(dataset,batch_size = 500,shuffle = True, )
+    variance = np.var(Y)
+    return dataloader, variance
+
