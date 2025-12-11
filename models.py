@@ -442,4 +442,4 @@ def psomp(A, y, K, sigma2=None):
         # --- Step 3: update residual ---
         r = y - A_sub @ z_sub
 
-    return z_hat, A_aug
+    return z_hat

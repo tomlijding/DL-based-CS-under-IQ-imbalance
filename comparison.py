@@ -8,7 +8,7 @@ import torch
 
 from data import build_dataset, DataConfig
 from pretrained_models import load_pretrained_models, evaluate_pretrained_models
-from utils import generate_sensing_matrix, apply_iq_imbalance
+from utils import generate_sensing_matrix, apply_iq_imbalance, find_x_xi
 from models import omp, psomp
 
 use("Qt5Agg")
@@ -40,10 +40,11 @@ for noise_level in noise_levels:
     y = Phi @ x
     y = y + np.random.normal(0, variance, size=y.shape)
     x_hat_omp = omp(Phi,y,omp_epsilon,omp_max_iterations)
-    x_hat_psomp, A_aug = psomp(Phi,y, config.max_sparsity)
+    z_hat = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat = find_x_xi(z_hat)
     DFT = sp.linalg.dft(config.vector_size)/np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
-    h_hat_psomp = A_aug @ x_hat_psomp
+    h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
     OMP_MSE = sum((h-h_hat_omp)**2)/len(y)
@@ -62,10 +63,11 @@ for IRR_ratio in IRR_ratios:
     y = Phi @ x
     y = apply_iq_imbalance(y, IRR_ratio)[sensing_matrix_rows:]
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    x_hat_psomp, A_aug = psomp(Phi,y, config.max_sparsity)
+    z_hat = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat = find_x_xi(z_hat)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
-    h_hat_psomp = A_aug @ x_hat_psomp
+    h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
     OMP_MSE = sum((h-h_hat_omp) ** 2)/len(y)
@@ -82,10 +84,11 @@ for sensing_size in sensing_sizes:
     # First generate the output
     y = Phi @ x
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    x_hat_psomp, A_aug = psomp(Phi,y, config.max_sparsity)
+    z_hat = psomp(Phi,y, config.max_sparsity)
+    x_hat_psomp, xi_hat = find_x_xi(z_hat)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
-    h_hat_psomp = A_aug @ x_hat_psomp
+    h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
     OMP_MSE = sum((h-h_hat_omp) ** 2)/len(y)
