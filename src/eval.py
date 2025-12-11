@@ -44,7 +44,7 @@ def load_pretrained_models():
             noisy_pretrained_models[(i, db)] = LearnedAutoencoderWithNoise(vector_size, encoding_dim, hidden_dims,
                                                                            variance)
             noisy_pretrained_models[(i, db)].load_state_dict(torch.load(
-                f"Models/noisy_models/sparsity_{min_spars}-{max_spars}/noisy_model_{db}_{min_spars}-{max_spars}.pt",
+                f"../Models/noisy_models/sparsity_{min_spars}-{max_spars}/noisy_model_{db}_{min_spars}-{max_spars}.pt",
                 weights_only=True))
 
         # Initialize pretrained imbalanced_models
@@ -58,7 +58,7 @@ def load_pretrained_models():
             imbalanced_pretrained_models[(i, level)] = LearnedAutoencoderWithIQImbalance(vector_size, encoding_dim,
                                                                                          hidden_dims, b, d, variance)
             imbalanced_pretrained_models[(i, level)].load_state_dict(torch.load(
-                f"Models/imbalanced_models/sparsity_{min_spars}-{max_spars}/imbalanced_model_{level:.3f}_{min_spars}-{max_spars}.pt",
+                f"../Models/imbalanced_models/sparsity_{min_spars}-{max_spars}/imbalanced_model_{level:.3f}_{min_spars}-{max_spars}.pt",
                 weights_only=True))
 
         # Initialize pretrained measurement models
@@ -74,7 +74,7 @@ def load_pretrained_models():
                                                                                                  hidden_dims, b, d,
                                                                                                  variance)
             measurement_pretrained_models[(i, encoding_dim)].load_state_dict(torch.load(
-                f"Models/measurement_models/sparsity_{min_spars}-{max_spars}/measurement_model_{encoding_dim}_{min_spars}-{max_spars}.pt",
+                f"../Models/measurement_models/sparsity_{min_spars}-{max_spars}/measurement_model_{encoding_dim}_{min_spars}-{max_spars}.pt",
                 weights_only=True))
     return noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models
 

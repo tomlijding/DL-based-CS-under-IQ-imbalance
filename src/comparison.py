@@ -50,9 +50,9 @@ for noise_level in noise_levels:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h-h_hat_omp)**2)/sum(h**2)
+    OMP_NMSE = sum((h-h_hat_omp)*np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
     OMP_noisy_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h-h_hat_psomp)**2)/sum(h**2)
+    PSOMP_NMSE = sum((h-h_hat_psomp)*np.conjugate(h-h_hat_psomp))/sum(h*np.conjugate(h))
     PSOMP_noisy_losses.append(PSOMP_NMSE)
 
 OMP_imbalanced_losses = []
@@ -72,9 +72,9 @@ for IRR_ratio in IRR_ratios:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h - h_hat_omp) ** 2)/sum(h**2)
+    OMP_NMSE = sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
     OMP_imbalanced_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h - h_hat_psomp) ** 2)/sum(h**2)
+    PSOMP_NMSE = sum((h - h_hat_psomp) * np.conjugate(h-h_hat_psomp))/sum(h*np.conjugate(h))
     PSOMP_imbalanced_losses.append(PSOMP_NMSE)
 
 OMP_sensing_size_losses = []
@@ -93,9 +93,9 @@ for sensing_size in sensing_sizes:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h - h_hat_omp) ** 2)/sum(h**2)
+    OMP_NMSE = sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
     OMP_sensing_size_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h - h_hat_psomp) ** 2)/sum(h**2)
+    PSOMP_NMSE = sum((h - h_hat_psomp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
     PSOMP_sensing_size_losses.append(PSOMP_NMSE)
 
 plt.style.use('bmh')
@@ -103,7 +103,7 @@ fig1, (ax1, ax2, ax3) = plt.subplots(ncols=3, nrows=1, figsize=(18, 6))
 
 ax1.plot(SNR.keys(), all_noisy_losses[1], marker="o")
 ax1.plot(SNR.keys(), OMP_noisy_losses, marker="o")
-# ax1.plot(SNR.keys(), PSOMP_noisy_losses, marker="o")
+ax1.plot(SNR.keys(), PSOMP_noisy_losses, marker="o")
 ax1.set_xlabel("SNR $(dB)$")
 ax1.set_ylabel("NMSE")
 ax1.set_title("Noisy Model Performance")
@@ -113,7 +113,7 @@ ax1.legend(["Auto-encoder", "OMP", "PSOMP"])
 
 ax2.plot(IRR_ratios.values(), all_imbalanced_losses[1], marker='s')
 ax2.plot(IRR_ratios.values(), OMP_imbalanced_losses, marker="s")
-# ax2.plot(IRR_ratios.values(), PSOMP_imbalanced_losses, marker="s")
+ax2.plot(IRR_ratios.values(), PSOMP_imbalanced_losses, marker="s")
 ax2.set_xlabel("IRR $(dB)$")
 ax2.set_title("IQ Imbalanced Model Performance")
 ax2.legend(["Auto-encoder", "OMP", "PSOMP"])
@@ -122,7 +122,7 @@ ax2.grid(True)
 
 ax3.plot(measurement_sizes, all_measurement_losses[1], marker='^')
 ax3.plot(measurement_sizes, OMP_sensing_size_losses, marker="^")
-# ax3.plot(measurement_sizes, PSOMP_sensing_size_losses, marker="^")
+ax3.plot(measurement_sizes, PSOMP_sensing_size_losses, marker="^")
 ax3.set_xlabel("Measurement Dimension")
 ax3.set_title("Measurement Model Performance")
 ax3.legend(["Auto-encoder", "OMP", "PSOMP"])
