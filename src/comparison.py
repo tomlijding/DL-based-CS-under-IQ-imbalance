@@ -49,9 +49,9 @@ for noise_level in noise_levels:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((x-x_hat_omp)**2)/sum(x**2)
+    OMP_NMSE = sum((h-h_hat_omp)**2)/sum(h**2)
     OMP_noisy_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((x-x_hat_psomp)**2)/sum(x**2)
+    PSOMP_NMSE = sum((h-h_hat_psomp)**2)/sum(h**2)
     PSOMP_noisy_losses.append(PSOMP_NMSE)
 
 OMP_imbalanced_losses = []
@@ -72,9 +72,9 @@ for IRR_ratio in IRR_ratios:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((x - x_hat_omp) ** 2)/sum(x**2)
+    OMP_NMSE = sum((h - h_hat_omp) ** 2)/sum(h**2)
     OMP_imbalanced_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((x - x_hat_psomp) ** 2)/sum(x**2)
+    PSOMP_NMSE = sum((h - h_hat_psomp) ** 2)/sum(h**2)
     PSOMP_imbalanced_losses.append(PSOMP_NMSE)
 
 OMP_sensing_size_losses = []
@@ -94,9 +94,9 @@ for sensing_size in sensing_sizes:
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((x - x_hat_omp) ** 2)/sum(x**2)
+    OMP_NMSE = sum((h - h_hat_omp) ** 2)/sum(h**2)
     OMP_sensing_size_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((x - x_hat_psomp) ** 2)/sum(x**2)
+    PSOMP_NMSE = sum((h - h_hat_psomp) ** 2)/sum(h**2)
     PSOMP_sensing_size_losses.append(PSOMP_NMSE)
 
 print("model training complete")
