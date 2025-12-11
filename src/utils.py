@@ -101,6 +101,15 @@ def calc_IRR_ratios(imb_percentage_list):
 
     return IRR_ratios
 
+def calc_xi_from_imb_percentage(imb_percentage_list):
+    xi_list = []
+    for level in imb_percentage_list:
+        b = 1 - (0.2 * level)
+        d = level * np.pi / 8
+        xi = 0.5 * (1 + b * np.exp(1j * d))
+        xi_list.append(xi)
+    return xi_list
+
 """
 OMP/PSOMP
 """
@@ -119,10 +128,10 @@ def generate_sensing_matrix(m, n):
     Phi : np.ndarray
         The generated sensing matrix (size: m x n).
     """
-    #DFT = sp.linalg.dft(n)/np.sqrt(n)
+    DFT = sp.linalg.dft(n)/np.sqrt(n)
     A = np.random.randn(m, n)
-    Phi = A# @ DFT
-    Phi = Phi/ np.linalg.norm(Phi, axis=0, keepdims=True)
+    Phi = A @ DFT
+    Phi = Phi #/ np.linalg.norm(Phi, axis=0, keepdims=True)
     return Phi
 
 def apply_iq_imbalance(x,xi):
@@ -138,10 +147,10 @@ def apply_iq_imbalance(x,xi):
         y : np.ndarray
             Signal after applying IQ imbalance (size: n x 1).
     """
-    z_1 = xi*x
-    z_2 = (1 - np.conj(xi))*np.conj(x)
-    z = np.concatenate([z_1,z_2])
-    return z.reshape(-1,1)
+    y_1 = xi*x
+    y_2 = (1 - np.conj(xi))*np.conj(x)
+    y = y_1 + y_2
+    return y
 
 def generate_random_phase_matrix(m :int ,n : int):
     """
@@ -200,3 +209,20 @@ def iq_imbalanced_measurement(A : np.ndarray, x : np.ndarray, xi : complex, nois
         noise = noise_level * (np.random.randn(*y.shape) + 1j * np.random.randn(*y.shape))
         y += noise  # Add noise
     return y
+
+def IRR_to_xi(IRR_dB : float):
+    """
+    Function to convert IRR in dB to IQ imbalance parameter xi.
+    
+    Parameters:
+    IRR_dB : float
+        Image Rejection Ratio in decibels.
+        
+    Returns:
+    xi : complex
+        IQ imbalance parameter.
+    """
+    IRR_linear = 10 ** (IRR_dB / 10)
+    r = np.sqrt(IRR_linear) / (1 + np.sqrt(IRR_linear))
+    xi = r / (r - 1)
+    return xi

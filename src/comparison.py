@@ -9,7 +9,7 @@ import torch
 from src.data_generation import build_dataset
 from src.eval import load_pretrained_models, evaluate_pretrained_models
 from src.algorithms import omp, psomp, find_x_xi
-from src.utils import DataConfig,generate_sensing_matrix, apply_iq_imbalance
+from src.utils import DataConfig,generate_sensing_matrix, iq_imbalanced_measurement, calc_xi_from_imb_percentage, generate_random_phase_matrix
 
 # Bugs:
 # - In visualization, we calculate and IRR ratio of infinity for 0% imbalance, which is incorrect. Need to handle 0% case separately.
@@ -32,49 +32,51 @@ sensing_sizes = [5, 10, 20, 30, 40, 50]
 
 noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models = load_pretrained_models()
 all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses = evaluate_pretrained_models(noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models)
+imb_percentage_list = [0, 0.04, 0.1, 0.3, 0.6, 1]
+xi_list = calc_xi_from_imb_percentage(imb_percentage_list)
+print(xi_list)
 loss_fn = nn.MSELoss()
 OMP_noisy_losses = []
 PSOMP_noisy_losses = []
 for noise_level in noise_levels:
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
-    Phi = generate_sensing_matrix(sensing_matrix_rows,config.vector_size)
+    Phi = generate_random_phase_matrix(sensing_matrix_rows,config.vector_size)
     # First generate the output
     y = Phi @ x
     y = y + np.random.normal(0, variance, size=y.shape)
     x_hat_omp = omp(Phi,y,omp_epsilon,omp_max_iterations)
-    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, 2*config.max_sparsity)
     x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size)/np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h-h_hat_omp)*np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
+    OMP_NMSE = np.sum((h-h_hat_omp)*np.conjugate(h-h_hat_omp))/np.sum(h*np.conjugate(h))
     OMP_noisy_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h-h_hat_psomp)*np.conjugate(h-h_hat_psomp))/sum(h*np.conjugate(h))
+    PSOMP_NMSE = np.sum((h-h_hat_psomp)*np.conjugate(h-h_hat_psomp))/np.sum(h*np.conjugate(h))
     PSOMP_noisy_losses.append(PSOMP_NMSE)
 
 OMP_imbalanced_losses = []
 PSOMP_imbalanced_losses = []
-for IRR_ratio in IRR_ratios:
+for xi in xi_list:
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
-    Phi = generate_sensing_matrix(sensing_matrix_rows, config.vector_size)
+    Phi = generate_random_phase_matrix(sensing_matrix_rows, config.vector_size)
     # First generate the output
-    y = Phi @ x
-    y = apply_iq_imbalance(y, IRR_ratio)[sensing_matrix_rows:]
+    y = iq_imbalanced_measurement(Phi,x,xi,1)
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, 2*config.max_sparsity)
     x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
+    OMP_NMSE = np.sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/np.sum(h*np.conjugate(h))
     OMP_imbalanced_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h - h_hat_psomp) * np.conjugate(h-h_hat_psomp))/sum(h*np.conjugate(h))
+    PSOMP_NMSE = np.sum((h - h_hat_psomp) * np.conjugate(h-h_hat_psomp))/np.sum(h*np.conjugate(h))
     PSOMP_imbalanced_losses.append(PSOMP_NMSE)
 
 OMP_sensing_size_losses = []
@@ -82,20 +84,20 @@ PSOMP_sensing_size_losses = []
 for sensing_size in sensing_sizes:
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
-    Phi = generate_sensing_matrix(sensing_size, config.vector_size)
+    Phi = generate_random_phase_matrix(sensing_size, config.vector_size)
     # First generate the output
     y = Phi @ x
     x_hat_omp = omp(Phi, y, omp_epsilon, omp_max_iterations)
-    z_hat_psomp = psomp(Phi,y, config.max_sparsity)
+    z_hat_psomp = psomp(Phi,y, 2*config.max_sparsity)
     x_hat_psomp, xi_hat_psomp = find_x_xi(z_hat_psomp)
     DFT = sp.linalg.dft(config.vector_size) / np.sqrt(config.vector_size)
     h_hat_omp = DFT @ x_hat_omp
     h_hat_psomp = DFT @ x_hat_psomp
     indices = range(len(x_hat_omp))
 
-    OMP_NMSE = sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
+    OMP_NMSE = np.sum((h - h_hat_omp) * np.conjugate(h-h_hat_omp))/np.sum(h*np.conjugate(h))
     OMP_sensing_size_losses.append(OMP_NMSE)
-    PSOMP_NMSE = sum((h - h_hat_psomp) * np.conjugate(h-h_hat_omp))/sum(h*np.conjugate(h))
+    PSOMP_NMSE = np.sum((h - h_hat_psomp) * np.conjugate(h-h_hat_psomp))/np.sum(h*np.conjugate(h))
     PSOMP_sensing_size_losses.append(PSOMP_NMSE)
 
 plt.style.use('bmh')

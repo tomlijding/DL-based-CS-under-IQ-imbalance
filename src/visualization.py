@@ -27,8 +27,8 @@ def plot_several_models(all_imbalanced_losses, all_measurement_losses, SNR, IRR_
         ax1.grid(True)
         ax1.legend(["baseline model", "sparsity 3-5", "sparsity 5-7", "sparsity 7-9", "sparsity 10-30"])
         # Debugging
-        print(f"Imbalanced losses for sparsity {i}: {all_imbalanced_losses[i]}")
-        print(f"IRR ratios: {IRR_ratios.values()}")
+        # print(f"Imbalanced losses for sparsity {i}: {all_imbalanced_losses[i]}")
+        # print(f"IRR ratios: {IRR_ratios.values()}")
         # Debugging
         ax2.plot(IRR_ratios.values(), all_imbalanced_losses[i], marker='s')
         ax2.set_xlabel("IRR $(dB)$")
