@@ -7,7 +7,7 @@ from torch import nn
 from data import build_dataset
 
 def plot_several_models(all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses):
-    plt.style.use('ggplot')
+    plt.style.use('bmh')
     fig1, (ax1, ax2, ax3) = plt.subplots(ncols=3, nrows=1, figsize=(18, 6))
 
     for i in range(4):

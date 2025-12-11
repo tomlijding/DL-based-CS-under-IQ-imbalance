@@ -59,10 +59,12 @@ def calc_IRR_ratios(imb_percentage_list):
         b = 1 - (0.2 * level)
         d = level * np.pi / 8
         r = 0.5 * (1 + b * np.exp(1j * d))
-        IRR_ratio = (np.abs(r) ** 2) / (np.abs(1 - r) ** 2)
-        IRR_ratios[level] = 10 * np.log10(IRR_ratio)
-
-        return IRR_ratios
+        if r == 1:
+            IRR_ratios[level] = 50
+        else:
+            IRR_ratio = (np.abs(r) ** 2) / (np.abs(1 - r) ** 2)
+            IRR_ratios[level] = 10 * np.log10(IRR_ratio)
+    return IRR_ratios
 
 def find_x_xi(z: np.ndarray):
     """
