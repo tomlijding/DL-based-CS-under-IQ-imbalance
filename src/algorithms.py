@@ -448,7 +448,6 @@ def psomp(A, y, K, sigma2=None):
         # --- Step 3: update residual ---
         r = y - A_sub @ z_sub
 
-
     return z_hat
 
 def find_x_xi(z : np.ndarray):
@@ -469,5 +468,5 @@ def find_x_xi(z : np.ndarray):
     beta = np.linalg.norm(z_2)**2
     gamma = z_1.T @ z_2
     xi_hat = (alpha - beta - 2*gamma + np.sqrt( (alpha - beta)**2 + 4*np.abs(gamma)**2))/(2*(alpha - beta + np.conj(gamma) - gamma))
-    x_hat = z_1/xi_hat
+    x_hat = (np.conjugate(xi_hat)*z_1 + (1-xi_hat)*np.conjugate(z_2)) / (abs(xi_hat)**2 + abs(1-xi_hat)**2)
     return x_hat.reshape(-1,1), xi_hat

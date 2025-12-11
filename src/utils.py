@@ -119,9 +119,9 @@ def generate_sensing_matrix(m, n):
     Phi : np.ndarray
         The generated sensing matrix (size: m x n).
     """
-    #DFT = sp.linalg.dft(n)/np.sqrt(n)
+    DFT = sp.linalg.dft(n)/np.sqrt(n)
     A = np.random.randn(m, n)
-    Phi = A# @ DFT
+    Phi = A @ DFT
     Phi = Phi/ np.linalg.norm(Phi, axis=0, keepdims=True)
     return Phi
 
