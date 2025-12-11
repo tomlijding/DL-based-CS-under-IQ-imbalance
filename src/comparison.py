@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
+from matplotlib import use
 import scipy as sp
+from torch import nn
+import torch
 
 from src.data_generation import build_dataset
 from src.eval import load_pretrained_models, evaluate_pretrained_models
@@ -15,7 +19,7 @@ config = DataConfig(dataset_size = 1,
     vector_size= 100,
     max_amplitude= 100,
     min_sparsity= 5,
-    max_sparsity= 10)
+    max_sparsity= 7)
 noise_level= 1
 omp_epsilon= 1
 omp_max_iterations= 10
@@ -26,15 +30,12 @@ model_path= "models/sparse_recovery_model.pth"
 noise_levels = [2, 5, 8, 11, 14, 17, 20]
 sensing_sizes = [5, 10, 20, 30, 40, 50]
 
-
 noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models = load_pretrained_models()
 all_imbalanced_losses, all_measurement_losses, SNR, IRR_ratios, measurement_sizes, all_noisy_losses = evaluate_pretrained_models(noisy_pretrained_models, imbalanced_pretrained_models, measurement_pretrained_models)
-
-print("training (PS)OMP model")
+loss_fn = nn.MSELoss()
 OMP_noisy_losses = []
 PSOMP_noisy_losses = []
 for noise_level in noise_levels:
-    print(f"Printing models with {noise_level}dB of noise")
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
     Phi = generate_sensing_matrix(sensing_matrix_rows,config.vector_size)
@@ -57,7 +58,6 @@ for noise_level in noise_levels:
 OMP_imbalanced_losses = []
 PSOMP_imbalanced_losses = []
 for IRR_ratio in IRR_ratios:
-    print(f"Printing models with {IRR_ratio} IRR ratio")
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
     Phi = generate_sensing_matrix(sensing_matrix_rows, config.vector_size)
@@ -80,7 +80,6 @@ for IRR_ratio in IRR_ratios:
 OMP_sensing_size_losses = []
 PSOMP_sensing_size_losses = []
 for sensing_size in sensing_sizes:
-    print(f"Training models with sensing matrix with {sensing_size} columns")
     variance = 133 / (10 ** (noise_level / 10))
     h, x = build_dataset(config)
     Phi = generate_sensing_matrix(sensing_size, config.vector_size)
@@ -99,45 +98,35 @@ for sensing_size in sensing_sizes:
     PSOMP_NMSE = sum((h - h_hat_psomp) ** 2)/sum(h**2)
     PSOMP_sensing_size_losses.append(PSOMP_NMSE)
 
-print("model training complete")
-plt.style.use('ggplot')
+plt.style.use('bmh')
 fig1, (ax1, ax2, ax3) = plt.subplots(ncols=3, nrows=1, figsize=(18, 6))
 
-# Debugging
+ax1.plot(SNR.keys(), all_noisy_losses[1], marker="o")
+ax1.plot(SNR.keys(), OMP_noisy_losses, marker="o")
+# ax1.plot(SNR.keys(), PSOMP_noisy_losses, marker="o")
+ax1.set_xlabel("SNR $(dB)$")
+ax1.set_ylabel("NMSE")
+ax1.set_title("Noisy Model Performance")
+ax1.grid(True)
+# ax1.set_yscale("log")
+ax1.legend(["Auto-encoder", "OMP", "PSOMP"])
 
-print(f"OMP ")
+ax2.plot(IRR_ratios.values(), all_imbalanced_losses[1], marker='s')
+ax2.plot(IRR_ratios.values(), OMP_imbalanced_losses, marker="s")
+# ax2.plot(IRR_ratios.values(), PSOMP_imbalanced_losses, marker="s")
+ax2.set_xlabel("IRR $(dB)$")
+ax2.set_title("IQ Imbalanced Model Performance")
+ax2.legend(["Auto-encoder", "OMP", "PSOMP"])
+ax2.grid(True)
+# ax2.set_yscale("log")
 
-# Debugggin
+ax3.plot(measurement_sizes, all_measurement_losses[1], marker='^')
+ax3.plot(measurement_sizes, OMP_sensing_size_losses, marker="^")
+# ax3.plot(measurement_sizes, PSOMP_sensing_size_losses, marker="^")
+ax3.set_xlabel("Measurement Dimension")
+ax3.set_title("Measurement Model Performance")
+ax3.legend(["Auto-encoder", "OMP", "PSOMP"])
+ax3.grid(True)
+# ax3.set_yscale("log")
 
-for i in range(4):
-    if i == 0:
-        noiseless_loss = all_imbalanced_losses[0][0]
-        ax1.plot(SNR.keys(), [noiseless_loss for i in SNR.keys()])
-        ax2.plot(IRR_ratios.values(), [noiseless_loss for i in IRR_ratios.values()])
-        ax3.plot(measurement_sizes, [noiseless_loss for i in measurement_sizes])
-
-    ax1.plot(SNR.keys(), all_noisy_losses[i], marker="o")
-    ax1.plot(SNR.keys(), OMP_noisy_losses, marker="o")
-    ax1.plot(SNR.keys(), PSOMP_noisy_losses, marker="o")
-    ax1.set_xlabel("SNR $(dB)$")
-    ax1.set_ylabel("NMSE")
-    ax1.set_title("Noisy Model Performance")
-    ax1.grid(True)
-    ax1.legend(["baseline model", "sparsity 3-5", "sparsity 5-7", "sparsity 7-9", "sparsity 10-30", "OMP", "PSOMP"])
-
-    ax2.plot(IRR_ratios.values(), all_imbalanced_losses[i], marker='s')
-    ax2.plot(IRR_ratios.values(), OMP_imbalanced_losses, marker="s")
-    ax2.plot(IRR_ratios.values(), PSOMP_imbalanced_losses, marker="s")
-    ax2.set_xlabel("IRR $(dB)$")
-    ax2.set_title("IQ Imbalanced Model Performance")
-    ax2.legend(["baseline model", "sparsity 3-5", "sparsity 5-7", "sparsity 7-9", "sparsity 10-30", "OMP", "PSOMP"])
-    ax2.grid(True)
-
-    ax3.plot(measurement_sizes, all_measurement_losses[i], marker='^')
-    ax3.plot(measurement_sizes, OMP_sensing_size_losses, marker="^")
-    ax3.plot(measurement_sizes, PSOMP_sensing_size_losses, marker="^")
-    ax3.set_xlabel("Measurement Dimension")
-    ax3.set_title("Measurement Model Performance")
-    ax3.legend(["baseline model", "sparsity 3-5", "sparsity 5-7", "sparsity 7-9", "sparsity 10-30", "OMP", "PSOMP"])
-    ax3.grid(True)
 plt.show()
